@@ -747,42 +747,16 @@ if __name__=="__main__":
 
     process_patients()
     df = process_visits(ratio=30) #Uncomment this if you want to recompute !
-    #df_continuous = process_visits(ratio=1)
-
-    #df = pd.read_csv("~/Data/MS/Cleaned_MSBASE/df_clean.csv",parse_dates = ["DATE_OF_VISIT","first_visit_date"])
     df.Time = pd.to_timedelta(df.Time)
     df.Time_first2last = pd.to_timedelta(df.Time_first2last)
-
     
     df_sub,end_observation_binned,start_test_binned,end_test_binned = subset_patients(df, ratio=30)
-    #df_sub_from_onset = subset_patients_onset(df, ratio = 30)
-    #df_sub_cont, end_observation_cont, start_test_cont, end_test_cont = subset_patients(df_continuous, ratio =1)
     print("Preparing the dataset now ...")
      
     df_clean = prepare_dataset(df_sub, end_observation_binned,start_test_binned, end_test_binned,ratio=30)
-    
-    #df_clean_from_onset = prepare_dataset_from_onset(df_sub_from_onset,ratio=30,start_test = 4, end_test = 6)
-    #df_clean_cont = prepare_dataset(df_sub_cont, end_observation_cont, start_test_cont, end_test_cont, ratio = 1)
-
-
 
     df_clean.to_csv("~/Data/MS/Cleaned_MSBASE/df_clean_full.csv",index=False)
     
-    import ipdb; ipdb.set_trace()
-    #df_mri = create_MRI_df(df_clean)
-    #tens_data, _, _ = divide_and_conquer(df_clean, df_mri)
-
-    #df_mri_cont = create_MRI_df(df_clean_cont,ratio=1)
-    #tens_data_cont, _, _ = divide_and_conquer(df_clean_cont,df_mri_cont)
-    previous_ids = pd.read_csv("~/Data/MS/Cleaned_MSBASE/used_patients_ids.csv")
-    
-    previous_centers = previous_ids["PATIENT_ID"].apply(lambda x : ("-").join(x.split("-")[:2]))
-
-    assert df_clean.PATIENT_ID.isna().sum()==0
-    df_clean["center"] = df_clean["PATIENT_ID"].apply(lambda x : ("-").join(x.split("-")[:2]))
-    df_clean =  df_clean.loc[df_clean["center"].isin(previous_centers.unique())]
-
-    import ipdb; ipdb.set_trace()
     mat_data, extended_mat_data, cov_data, label_data, df_clean_final = divide_data(df_clean)
     mat_data.to_csv("~/Data/MS/Cleaned_MSBASE/mat_data.csv",index=False)
     extended_mat_data.to_csv("~/Data/MS/Cleaned_MSBASE/extended_mat_data.csv",index=False)
@@ -790,64 +764,15 @@ if __name__=="__main__":
     label_data.to_csv("~/Data/MS/Cleaned_MSBASE/label_data.csv",index=False)
     df_clean_final.to_csv("~/Data/MS/Cleaned_MSBASE/df_clean_final.csv", index = False)
 
-    import ipdb; ipdb.set_trace()
-
-
-    #mat_data_cont, cov_data_cont, label_data_cont = divide_data(df_clean_cont)
-    mat_from_onset_data, cov_onset_data, label_onset_data = divide_data(df_clean, from_onset = True)
-    mat_Setup2_data, cov_Setup2_data, label_Setup2_data = divide_data_Setup2(df_clean_from_onset)
-
-    #Keep only the patients from mat_data
-    #mat_data_cont = mat_data_cont.loc[mat_data_cont.UNIQUE_ID.isin(mat_data.UNIQUE_ID.unique())].copy()
-    #cov_data_cont = cov_data_cont.loc[cov_data_cont.UNIQUE_ID.isin(mat_data.UNIQUE_ID.unique())].copy()
-    #label_data_cont = label_data_cont.loc[label_data_cont.UNIQUE_ID.isin(mat_data.UNIQUE_ID.unique())].copy()
-    #tens_data_cont = tens_data_cont.loc[tens_data_cont.UNIQUE_ID.isin(mat_data.UNIQUE_ID.unique())]
-
-
-    pd.DataFrame(df_clean["PATIENT_ID"]).to_csv("~/Data/MS/Cleaned_MSBASE/used_patients_ids_new.csv")
-
     mat_data.to_csv("~/Data/MS/Cleaned_MSBASE/mat_data.csv",index=False)
     cov_data.to_csv("~/Data/MS/Cleaned_MSBASE/cov_data.csv",index=False)
     label_data.to_csv("~/Data/MS/Cleaned_MSBASE/label_data.csv",index=False)
     
     tens_data.to_csv("~/Data/MS/Cleaned_MSBASE/tens_data.csv",index = False)
-    #tens_data_cont.to_csv("~/Data/MS/Cleaned_MSBASE/tens_data_cont.csv", index = False)
 
 
-    mat_from_onset_data.to_csv("~/Data/MS/Cleaned_MSBASE/mat_from_onset_data.csv",index=False)
-    mat_Setup2_data.to_csv("~/Data/MS/Cleaned_MSBASE/mat_Setup2_data.csv",index=False)
-    cov_Setup2_data.to_csv("~/Data/MS/Cleaned_MSBASE/cov_Setup2_data.csv",index=False)
-    label_Setup2_data.to_csv("~/Data/MS/Cleaned_MSBASE/label_Setup2_data.csv",index=False)
 
-    #mat_data_cont.to_csv("~/Data/MS/Cleaned_MSBASE/mat_data_cont.csv",index=False)
-    #cov_data_cont.to_csv("~/Data/MS/Cleaned_MSBASE/cov_data_cont.csv",index=False)
-    #label_data_cont.to_csv("~/Data/MS/Cleaned_MSBASE/label_data_cont.csv",index=False)
 
 
   
-  #NB Setup-2 takes all trajectories by default.
 
-
-    df_clean.sort_values(by=["Binned_time"], inplace = True)
-    df_first = df_clean.drop_duplicates(["PATIENT_ID"], keep = "first")
-
-    df_clean_type = df_clean.loc[df_clean["PATIENT_ID"].isin(df_first.loc[df_first["MSCOURSE_AT_VISIT"]=="PR","PATIENT_ID"])]
-    df_first_type = df_clean_type.drop_duplicates(["PATIENT_ID"], keep = "first")
-
-    df_first_type["age_at_onset_days_computed"].mean()/365
-    df_first_type["age_at_onset_days_computed"].min()/365
-    df_first_type["age_at_onset_days_computed"].max()/365
-
-    df_clean_type.loc[df_clean_type["Binned_time"]<=36, "EDSS"].mean()
-    df_clean_type.loc[df_clean_type["Binned_time"]<=36, "EDSS"].min()
-    df_clean_type.loc[df_clean_type["Binned_time"]<=36, "EDSS"].max()
-
-    df_clean_type.loc[df_clean_type["Binned_time"]<=36].groupby('PATIENT_ID')["EDSS"].count().mean()
-    df_clean_type.loc[df_clean_type["Binned_time"]<=36].groupby('PATIENT_ID')["EDSS"].count().min()
-    df_clean_type.loc[df_clean_type["Binned_time"]<=36].groupby('PATIENT_ID')["EDSS"].count().max()
-
-    df_first_type['gender'].value_counts()
-
-    df_first_type['DURATION_OF_MS_AT_VISIT_ROUNDED'].mean()
-    df_first_type['DURATION_OF_MS_AT_VISIT_ROUNDED'].min()
-    df_first_type['DURATION_OF_MS_AT_VISIT_ROUNDED'].max()
