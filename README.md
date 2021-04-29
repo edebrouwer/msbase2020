@@ -47,6 +47,10 @@ To train the static model  :
 
 The models and results will be saved in `ms/comparisons_results/Setup1`
 
+To restore the model and compute the performances on a subset of the patients (e.g. results by MSCourse) : 
+
+`python restore_model.py` with the corresponding parameters : `type_model = "static"`
+
 
 ## Dynamic Model
 
@@ -58,6 +62,10 @@ To train the dynamic model  :
 
 The models and results will be saved in `ms/comparisons_results/Setup1`
 
+To restore the model and compute the performances on a subset of the patients (e.g. results by MSCourse) : 
+
+`python restore_model.py` with the corresponding parameters : `type_model = "dynamic"`
+
 
 ## BPTF Model
 
@@ -68,6 +76,10 @@ To train the bptf model  :
 `python model_6.py`
 
 The models and results will be saved in `ms/comparisons_results/`
+
+To restore the model and compute the performances on a subset of the patients (e.g. results by MSCourse) : 
+
+`python restore_model.py` with the corresponding parameters : `type_model = "bptf"`
 
 ## RNN Models
 
@@ -101,7 +113,11 @@ Then compute the results of the best models
 
 `python RNN_preds.py`
 
-`python 
+`python gru_ode_pred.py`
+
+Plots can be reproduced using the notebook PaperPlots.ipynb
+
+
 
 
 
