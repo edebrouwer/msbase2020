@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from ms import DATA_DIR
+from ms.utils.treatment_clean import dmt_clean_fun
 
 class printing_class:
     def __init__(self):
@@ -12,7 +14,9 @@ class printing_class:
         self.prev_total_patients=df["PATIENT_ID"].nunique()
 
 
-def process_patients(patients_df = "~/Data/MS/Cleaned_MSBASE/patients.csv"):
+def process_patients(patients_df = "patients.csv"):
+
+    patients_df = DATA_DIR + "/" + patients_df
 
     df=pd.read_csv(patients_df,encoding='latin1')
     #Check that every patient has a onset date
@@ -70,11 +74,14 @@ def process_patients(patients_df = "~/Data/MS/Cleaned_MSBASE/patients.csv"):
                       'age_at_first_symptoms_days',
                       'clinic_code', 'age_at_onset_days_computed']].copy()
     df_subset.rename({'MS_DIAGNOSIS_DATE_reformat':'MS_DIAGNOSIS_DATE'},inplace=True,axis='columns')
-    df_subset.to_pickle("/home/edward/Data/MS/Cleaned_MSBASE/patients_clean.pkl")
+    df_subset.to_pickle(DATA_DIR + "/patients_clean.pkl")
     print("Patients file processed. Saved in ~/Data/MS/Cleaned_MSBASE/patients_clean.pkl")
 
 
-def create_MRI_df(visits_df, MRI_csv = "~/Data/MS/Cleaned_MSBASE/MRI.csv",ratio = 30, end_test = 6):
+def create_MRI_df(visits_df, MRI_csv = "MRI.csv",ratio = 30, end_test = 6):
+    
+    MRI_csv = DATA_DIR + "/" +  MRI_csv
+
     df = pd.read_csv(MRI_csv)
     patients_df = visits_df.drop_duplicates("PATIENT_ID",keep="first")
     patient_clean_idx = patients_df["PATIENT_ID"]
@@ -110,7 +117,10 @@ def create_MRI_df(visits_df, MRI_csv = "~/Data/MS/Cleaned_MSBASE/MRI.csv",ratio 
 
     return(df_thin)
 
-def process_visits(visits_df = "~/Data/MS/Cleaned_MSBASE/visits.csv",clean_pats_pkl= "/home/edward/Data/MS/Cleaned_MSBASE/patients_clean.pkl",ratio=30):
+def process_visits(visits_df = "visits.csv",clean_pats_pkl= "patients_clean.pkl",ratio=30):
+
+    visits_df = DATA_DIR +  "/" + visits_df
+    clean_pats_pkl = DATA_DIR + "/" + clean_pats_pkl
 
     print_instance=printing_class()
     cols_to_use = ['PATIENT_ID', 'VISIT_FK', 'DATE_OF_VISIT', 'EDSS',
@@ -270,7 +280,7 @@ def process_visits(visits_df = "~/Data/MS/Cleaned_MSBASE/visits.csv",clean_pats_
     #import ipdb; ipdb.set_trace()
     #df_clean["last_relapse_date"] = df_clean.apply(lambda x: last_visit_computation(x,rel),axis=1)
     
-    df_clean.to_csv("~/Data/MS/Cleaned_MSBASE/df_clean.csv",index = False)
+    df_clean.to_csv(DATA_DIR+"/df_clean.csv",index = False)
     
     return(df_clean)
 
@@ -393,7 +403,7 @@ def subset_patients(df,ratio,years_limit=3,min_observed_visits=5,start_test=4,en
     
     print("Process DMTs....")
     #Process the dmts and add the last one in the observation window as a covariate
-    dmt = pd.read_csv("~/Data/MS/Cleaned_MSBASE/treatment_clean.csv")
+    dmt = pd.read_csv(DATA_DIR + "/treatment_clean.csv")
     dmt = dmt.loc[dmt.PATIENT_ID.isin(df_clean.PATIENT_ID.unique())].copy()
 
     dmt["START_DATE"] = pd.to_datetime(dmt["START_DATE"],errors="coerce")
@@ -413,7 +423,7 @@ def subset_patients(df,ratio,years_limit=3,min_observed_visits=5,start_test=4,en
 
     df_clean = df_m.copy()
 
-    dmt_story = pd.read_csv("~/Data/MS/Cleaned_MSBASE/treatment_history_clean.csv")
+    dmt_story = pd.read_csv(DATA_DIR + "/treatment_history_clean.csv")
     dmt_story = dmt_story.loc[dmt_story.PATIENT_ID.isin(df_clean.PATIENT_ID.unique())].copy()
     dmt_story["DATE_OF_VISIT"] = pd.to_datetime(dmt_story["date"])
     dmt_story.drop(columns = ["date"],inplace = True)
@@ -749,26 +759,27 @@ if __name__=="__main__":
     df = process_visits(ratio=30) #Uncomment this if you want to recompute !
     df.Time = pd.to_timedelta(df.Time)
     df.Time_first2last = pd.to_timedelta(df.Time_first2last)
+
+    dmt_clean_fun()
     
     df_sub,end_observation_binned,start_test_binned,end_test_binned = subset_patients(df, ratio=30)
     print("Preparing the dataset now ...")
      
     df_clean = prepare_dataset(df_sub, end_observation_binned,start_test_binned, end_test_binned,ratio=30)
 
-    df_clean.to_csv("~/Data/MS/Cleaned_MSBASE/df_clean_full.csv",index=False)
+    df_clean.to_csv(DATA_DIR+"/df_clean_full.csv",index=False)
     
     mat_data, extended_mat_data, cov_data, label_data, df_clean_final = divide_data(df_clean)
-    mat_data.to_csv("~/Data/MS/Cleaned_MSBASE/mat_data.csv",index=False)
-    extended_mat_data.to_csv("~/Data/MS/Cleaned_MSBASE/extended_mat_data.csv",index=False)
-    cov_data.to_csv("~/Data/MS/Cleaned_MSBASE/cov_data.csv",index=False)
-    label_data.to_csv("~/Data/MS/Cleaned_MSBASE/label_data.csv",index=False)
-    df_clean_final.to_csv("~/Data/MS/Cleaned_MSBASE/df_clean_final.csv", index = False)
+    mat_data.to_csv(DATA_DIR + "/mat_data.csv",index=False)
+    extended_mat_data.to_csv(DATA_DIR + "/extended_mat_data.csv",index=False)
+    cov_data.to_csv(DATA_DIR + "/cov_data.csv",index=False)
+    label_data.to_csv(DATA_DIR + "/label_data.csv",index=False)
+    df_clean_final.to_csv(DATA_DIR + "/df_clean_final.csv", index = False)
 
-    mat_data.to_csv("~/Data/MS/Cleaned_MSBASE/mat_data.csv",index=False)
-    cov_data.to_csv("~/Data/MS/Cleaned_MSBASE/cov_data.csv",index=False)
-    label_data.to_csv("~/Data/MS/Cleaned_MSBASE/label_data.csv",index=False)
+    mat_data.to_csv(DATA_DIR + "/mat_data.csv",index=False)
+    cov_data.to_csv(DATA_DIR + "/cov_data.csv",index=False)
+    label_data.to_csv(DATA_DIR + "/label_data.csv",index=False)
     
-    tens_data.to_csv("~/Data/MS/Cleaned_MSBASE/tens_data.csv",index = False)
 
 
 

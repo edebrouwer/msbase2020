@@ -3,10 +3,11 @@ import pandas as pd
 import ms
 from ms.utils.macau_utils import get_macau_pred
 import time
+from ms import DATA_DIR
 
 from joblib import dump, load
 
-infile_path = "~/Data/MS/Cleaned_MSBASE/"
+infile_path = DATA_DIR = "/"
 Y = pd.read_csv(infile_path+"label_data.csv")
 
 Num_patients= Y.values.shape[0]
@@ -31,8 +32,8 @@ Model6_recall = []
 times = []
 for fold in range(5):
     print(f"Computing BPMF for fold {fold}...")
-    train_idx =np.load(f"../folds/train_idx_{fold}.npy", allow_pickle = True)
-    test_idx = np.load(f"../folds/test_idx_{fold}.npy",allow_pickle = True)
+    train_idx =np.load(DATA_DIR + f"/folds/train_idx_{fold}.npy", allow_pickle = True)
+    test_idx = np.load(DATA_DIR + f"/folds/test_idx_{fold}.npy",allow_pickle = True)
 
     train_macau_preds = get_macau_pred(eval_idx = train_idx, allowed_idx = train_idx, num_folds=10,covariates_list = macau_covariates_list)
 
@@ -66,11 +67,11 @@ for fold in range(5):
     np.save(f"./saved_models/bptf_Y_test_fold{fold}.npy",Y_test)
 
 
-np.save("../comparisons_results/model6.npy",Model6_AUC)
-np.save("../comparisons_results/model6_tpr.npy",np.array(Model6_TPR))
-np.save("../comparisons_results/model6_fpr.npy",np.array(Model6_FPR))
-np.save("../comparisons_results/model6_precision.npy",np.array(Model6_precision))
-np.save("../comparisons_results/model6_recall.npy",np.array(Model6_recall))
+np.save("../comparisons_results/Setup1/model6.npy",Model6_AUC)
+np.save("../comparisons_results/Setup1/model6_tpr.npy",np.array(Model6_TPR))
+np.save("../comparisons_results/Setup1/model6_fpr.npy",np.array(Model6_FPR))
+np.save("../comparisons_results/Setup1/model6_precision.npy",np.array(Model6_precision))
+np.save("../comparisons_results/Setup1/model6_recall.npy",np.array(Model6_recall))
 
 
 print(f"Average AUC :{np.mean(Model6_AUC)} +- {np.std(Model6_AUC)}")

@@ -6,10 +6,11 @@ import numpy as np
 import pandas as pd
 import ms
 import time
+from ms import DATA_DIR
 
 from joblib import dump, load
 
-infile_path = "~/Data/MS/Cleaned_MSBASE/"
+infile_path = DATA_DIR + "/"
 Y = pd.read_csv(infile_path+"label_data.csv")
 
 Num_patients= Y.values.shape[0]
@@ -30,9 +31,9 @@ RF_recall = []
 times = []
 
 for fold in range(5):
-    train_idx =np.load(f"../folds/train_idx_{fold}.npy", allow_pickle = True)
-    val_idx = np.load(f"../folds/val_idx_{fold}.npy", allow_pickle = True)
-    test_idx = np.load(f"../folds/test_idx_{fold}.npy", allow_pickle = True)
+    train_idx =np.load(DATA_DIR + f"/folds/train_idx_{fold}.npy", allow_pickle = True)
+    val_idx = np.load(DATA_DIR + f"/folds/val_idx_{fold}.npy", allow_pickle = True)
+    test_idx = np.load(DATA_DIR + f"/folds/test_idx_{fold}.npy", allow_pickle = True)
     train_idx = np.concatenate((train_idx,val_idx))
     X_train = X.loc[X.UNIQUE_ID.isin(train_idx),cov_list].values
     X_test  = X.loc[X.UNIQUE_ID.isin(test_idx),cov_list].values

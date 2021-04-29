@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from ms import DATA_DIR
 
-unique_ids = pd.read_csv("~/Data/MS/Cleaned_MSBASE/label_data.csv").UNIQUE_ID.unique()
+unique_ids = pd.read_csv(DATA_DIR + "/label_data.csv").UNIQUE_ID.unique()
 Num_patients = len(unique_ids)
 seed = 421
 
@@ -18,9 +19,9 @@ for sim in range(5):
     assert len(np.intersect1d(val_idx, test_idx)) == 0
     assert len(np.intersect1d(train_idx, test_idx)) == 0
 
-    np.save(f"../folds/train_idx_{sim}.npy",train_idx)
-    np.save(f"../folds/val_idx_{sim}.npy",val_idx)
-    np.save(f"../folds/test_idx_{sim}.npy",test_idx)
+    np.save(DATA_DIR + f"/folds/train_idx_{sim}.npy",train_idx)
+    np.save(DATA_DIR + f"/folds/val_idx_{sim}.npy",val_idx)
+    np.save(DATA_DIR + f"/folds/test_idx_{sim}.npy",test_idx)
 
 
 
