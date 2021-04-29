@@ -14,6 +14,10 @@ Extra dependencies required from training the models :
 
 - Optunity (https://optunity.readthedocs.io)
 
+- Pytorch
+
+- SKlearn
+
 
 ## Cleaning and pre-processing of the MSBase Data
 
